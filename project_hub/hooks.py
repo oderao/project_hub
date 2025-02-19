@@ -83,7 +83,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "project_hub.install.before_install"
-# after_install = "project_hub.install.after_install"
+after_install = "project_hub.install.after_install"
 
 # Uninstallation
 # ------------
@@ -137,34 +137,43 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	# "*": {
+	# 	"on_update": "method",
+	# 	"on_cancel": "method",
+	# 	"on_trash": "method"
+	# }
+    "Project" : {
+        "validate" : "project_hub.overrides.check_has_value_changed"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"project_hub.tasks.all"
-# 	],
-# 	"daily": [
-# 		"project_hub.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"project_hub.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"project_hub.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"project_hub.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron" : {
+		"0 9 * * *" : {
+			"project_hub.overrides.send_project_reminder" #run cronjob at 9am every day
+		},
+		
+	}
+	# "all": [
+	# 	"project_hub.tasks.all"
+	# ],
+	# "daily": [
+	# 	"project_hub.tasks.daily"
+	# ],
+	# "hourly": [
+	# 	"project_hub.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"project_hub.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"project_hub.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------
