@@ -154,14 +154,12 @@ doc_events = {
 scheduler_events = {
     "cron" : {
 		"0 9 * * *" : {
-			"project_hub.overrides.send_project_reminder", #run cronjob at 9am every day
-			"project_hub.overrides.send_quotation_reminder",
-   			"project_hub.overrides.send_sales_invoice_reminder",
+			"project_hub.overrides.send_email_by_9am", #run cronjob at 9am every day
 
 
 		},
 		"0 0 1 */3 *" : {
-			"project_hub.overrides.send_opportunity_emails"
+			"project_hub.overrides.send_opportunity_emails" #run cronjob every quarter
 		}
 		
 	}

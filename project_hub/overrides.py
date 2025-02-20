@@ -129,7 +129,7 @@ def get_users_email(doc):
 
 def send_quotation_reminder():
 	
-	quotations = frappe.get_all("Quotation",filters=[["status" ,"in",["Open"]]],fields=["owner","name","customer_name"])
+	quotations = frappe.get_all("Quotation",filters=[["status" ,"in",["Open"]]],fields=["owner","name","customer_name","status"])
 	if quotations:
 		#group quotations by owner
 		res = defaultdict(list)
@@ -137,13 +137,15 @@ def send_quotation_reminder():
 				res[item['owner']].append(item)
     
 		for owner in res:
-			list_of_qtns = "<br>".join([i["name"]for i in res[owner]])
+			list_of_qtns = "<br>".join([i["name"] + " " + i["status"] + i["customer_name"] for i in res[owner]])
 			#send_quotation_email(owner,list_of_qtns)
+			send_email(owner,list_of_qtns,doctype="Quotation")
+
    
 
 def send_sales_invoice_reminder():
 	
-	sales_invoices = frappe.get_all("Sales Invoice",filters=[["status" ,"in",["Draft","Unpaid","Overdue"]]],fields=["owner","name","customer_name"])
+	sales_invoices = frappe.get_all("Sales Invoice",filters=[["status" ,"in",["Draft","Unpaid","Overdue"]]],fields=["owner","name","customer_name","status"])
 	if sales_invoices:
 		#group quotations by owner
 		res = defaultdict(list)
@@ -151,8 +153,10 @@ def send_sales_invoice_reminder():
 				res[item['owner']].append(item)
     
 		for owner in res:
-			list_of_inv = "<br>".join([i["name"]for i in res[owner]])
+			list_of_inv = "<br>".join([i["name"] + " " + i["status"] + " " + i["customer_name"] for i in res[owner]])
 			#send_sales_invoice_email(owner,list_of_inv)
+			send_email(owner,list_of_inv,doctype="Sales Invoice")
+
    
 
 def send_opportunity_reminder():
@@ -166,6 +170,38 @@ def send_opportunity_reminder():
     
 		for owner in res:
 			list_of_opps = "<br>".join([i["name"] + " " + i["title"] for i in res[owner]])
-			#send_opportunity_email(owner,list_of_opps)
+			send_email(owner,list_of_opps,doctype="Opportunity")
    
 
+def send_email(owner,doclist,doctype=""):
+    """Send email reminder to the owner/creator of the documents"""
+    
+    if doctype == "Sales Invoice":
+        link_to_list = frappe.utils.get_url_to_list("Sales Invoice")
+        message = "Find below list of outstanding sales invoices in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+        subject = "Sales Invoice Reminder"
+    
+    if doctype == "Opportunity":
+        link_to_list = frappe.utils.get_url_to_list("Opportunity")
+        message = "Find below list of opportunity <br> <hr>"  + doclist + f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+        subject = "Opportunities Reminder"
+        
+       
+    
+    if doctype == "Quotation":
+        link_to_list = frappe.utils.get_url_to_list("Quotation")
+        message = "Find below list of open quotations in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+        subject = "Quotation Reminder"
+    
+    frappe.sendmail(
+		recipients=["info@nigmatech.net"],
+		message = message,
+  		subject=_(subject),
+		now=True,
+	)
+
+
+def send_email_by_9am():
+    send_project_reminder()
+    send_quotation_reminder()
+    send_sales_invoice_reminder()
