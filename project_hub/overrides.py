@@ -3,6 +3,7 @@ from erpnext.projects.doctype.project.project import Project
 from erpnext.setup.doctype.holiday_list.holiday_list import is_holiday
 from frappe.utils import add_days, flt, get_datetime, get_time, get_url, nowtime, today
 from frappe import _
+from collections import defaultdict
 
 
 def check_has_value_changed(doc,event):
@@ -124,3 +125,47 @@ def send_project_update_email_to_users(project):
 
 def get_users_email(doc):
 	return [d.email for d in doc.users if frappe.db.get_value("User", d.user, "enabled")]
+
+
+def send_quotation_reminder():
+	
+	quotations = frappe.get_all("Quotation",filters=[["status" ,"in",["Open"]]],fields=["owner","name","customer_name"])
+	if quotations:
+		#group quotations by owner
+		res = defaultdict(list)
+		for item in quotations:
+				res[item['owner']].append(item)
+    
+		for owner in res:
+			list_of_qtns = "<br>".join([i["name"]for i in res[owner]])
+			#send_quotation_email(owner,list_of_qtns)
+   
+
+def send_sales_invoice_reminder():
+	
+	sales_invoices = frappe.get_all("Sales Invoice",filters=[["status" ,"in",["Draft","Unpaid","Overdue"]]],fields=["owner","name","customer_name"])
+	if sales_invoices:
+		#group quotations by owner
+		res = defaultdict(list)
+		for item in sales_invoices:
+				res[item['owner']].append(item)
+    
+		for owner in res:
+			list_of_inv = "<br>".join([i["name"]for i in res[owner]])
+			#send_sales_invoice_email(owner,list_of_inv)
+   
+
+def send_opportunity_reminder():
+	
+	opps = frappe.get_all("Opportunity",filters=[["status" ,"in",["Open","Lost"]]],fields=["owner","name","title"])
+	if opps:
+		#group quotations by owner
+		res = defaultdict(list)
+		for item in opps:
+				res[item['owner']].append(item)
+    
+		for owner in res:
+			list_of_opps = "<br>".join([i["name"] + " " + i["title"] for i in res[owner]])
+			#send_opportunity_email(owner,list_of_opps)
+   
+
