@@ -139,7 +139,10 @@ def send_quotation_reminder():
 		for owner in res:
 			list_of_qtns = "<br>".join([i["name"] + " " + i["status"] + i["customer_name"] for i in res[owner]])
 			#send_quotation_email(owner,list_of_qtns)
-			send_email(owner,list_of_qtns,doctype="Quotation")
+			#QTNS go out tuesday and thursday
+			if get_datetime().isoweekday() == 2 or 4:
+				send_email(owner,list_of_qtns,doctype="Quotation")
+			
 
    
 
@@ -155,7 +158,8 @@ def send_sales_invoice_reminder():
 		for owner in res:
 			list_of_inv = "<br>".join([i["name"] + " " + i["status"] + " " + i["customer_name"] for i in res[owner]])
 			#send_sales_invoice_email(owner,list_of_inv)
-			send_email(owner,list_of_inv,doctype="Sales Invoice")
+			if get_datetime().isoweekday() == 1: #ie send emails on Monday			
+				send_email(owner,list_of_inv,doctype="Sales Invoice")
 
    
 
