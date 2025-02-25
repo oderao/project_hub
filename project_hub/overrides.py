@@ -199,7 +199,7 @@ def send_email(owner,doclist,doctype=""):
 		subject = "Quotation Reminder"
 	
 	frappe.sendmail(
-		recipients=["info@nigmatech.net"],
+		recipients=[owner],
 		message = message,
   		subject=_(subject),
 		now=True,
