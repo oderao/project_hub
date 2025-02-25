@@ -179,7 +179,8 @@ def send_opportunity_reminder():
 
 def send_email(owner,doclist,doctype=""):
 	"""Send email reminder to the owner/creator of the documents"""
-	
+	if owner == "Administrator":
+		owner = frappe.db.get_value("User","Administrator","email")
 	if doctype == "Sales Invoice":
 		link_to_list = frappe.utils.get_url_to_list("Sales Invoice")
 		message = "Find below list of outstanding sales invoices in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
