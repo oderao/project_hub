@@ -145,7 +145,10 @@ doc_events = {
 	# }
     "Project" : {
         "validate" : "project_hub.overrides.check_has_value_changed"
-    }
+    },
+    "Meeting" : {
+		"on_submit" : "project_hub.overrides.update_meetings"
+	}
 }
 
 # Scheduled Tasks

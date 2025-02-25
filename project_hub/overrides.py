@@ -135,7 +135,7 @@ def send_quotation_reminder():
 		res = defaultdict(list)
 		for item in quotations:
 				res[item['owner']].append(item)
-    
+	
 		for owner in res:
 			list_of_qtns = "<br>".join([i["name"] + " " + i["status"] + i["customer_name"] for i in res[owner]])
 			#send_quotation_email(owner,list_of_qtns)
@@ -154,7 +154,7 @@ def send_sales_invoice_reminder():
 		res = defaultdict(list)
 		for item in sales_invoices:
 				res[item['owner']].append(item)
-    
+	
 		for owner in res:
 			list_of_inv = "<br>".join([i["name"] + " " + i["status"] + " " + i["customer_name"] for i in res[owner]])
 			#send_sales_invoice_email(owner,list_of_inv)
@@ -171,33 +171,33 @@ def send_opportunity_reminder():
 		res = defaultdict(list)
 		for item in opps:
 				res[item['owner']].append(item)
-    
+	
 		for owner in res:
 			list_of_opps = "<br>".join([i["name"] + " " + i["title"] for i in res[owner]])
 			send_email(owner,list_of_opps,doctype="Opportunity")
    
 
 def send_email(owner,doclist,doctype=""):
-    """Send email reminder to the owner/creator of the documents"""
-    
-    if doctype == "Sales Invoice":
-        link_to_list = frappe.utils.get_url_to_list("Sales Invoice")
-        message = "Find below list of outstanding sales invoices in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
-        subject = "Sales Invoice Reminder"
-    
-    if doctype == "Opportunity":
-        link_to_list = frappe.utils.get_url_to_list("Opportunity")
-        message = "Find below list of opportunity <br> <hr>"  + doclist + f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
-        subject = "Opportunities Reminder"
-        
-       
-    
-    if doctype == "Quotation":
-        link_to_list = frappe.utils.get_url_to_list("Quotation")
-        message = "Find below list of open quotations in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
-        subject = "Quotation Reminder"
-    
-    frappe.sendmail(
+	"""Send email reminder to the owner/creator of the documents"""
+	
+	if doctype == "Sales Invoice":
+		link_to_list = frappe.utils.get_url_to_list("Sales Invoice")
+		message = "Find below list of outstanding sales invoices in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+		subject = "Sales Invoice Reminder"
+	
+	if doctype == "Opportunity":
+		link_to_list = frappe.utils.get_url_to_list("Opportunity")
+		message = "Find below list of opportunity <br> <hr>"  + doclist + f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+		subject = "Opportunities Reminder"
+		
+	   
+	
+	if doctype == "Quotation":
+		link_to_list = frappe.utils.get_url_to_list("Quotation")
+		message = "Find below list of open quotations in draft,unpaid and overdue state <br> <hr>"  + doclist +  f"<hr> Go to the opportunity list to <a href={link_to_list}> view</a> "
+		subject = "Quotation Reminder"
+	
+	frappe.sendmail(
 		recipients=["info@nigmatech.net"],
 		message = message,
   		subject=_(subject),
@@ -206,6 +206,107 @@ def send_email(owner,doclist,doctype=""):
 
 
 def send_email_by_9am():
-    send_project_reminder()
-    send_quotation_reminder()
-    send_sales_invoice_reminder()
+	send_project_reminder()
+	send_quotation_reminder()
+	send_sales_invoice_reminder()
+
+def update_meetings(doc,event):
+	
+	if doc.party_type == "Lead":
+		meet_table = frappe.get_doc({
+			"doctype":"Meeting Table",
+			"parenttype" : "Lead",
+			"parent" : doc.party,
+			"party_type" : doc.party_type,
+			"party" : doc.party,
+			"meeting" : doc.name,
+			"parentfield" : "custom_meeting"
+		})
+		meet_table.insert()
+		link_doc = frappe.get_doc("Lead",doc.party)
+		link_doc.custom_meeting.append(meet_table)
+		link_doc.save()
+		if doc.project:
+			meet_table = frappe.get_doc({
+			"doctype":"Meeting Table",
+			"parenttype" : "Project",
+			"parent" : doc.project,
+			"party_type" : doc.party_type,
+			"party" : doc.party,
+			"meeting" : doc.name,
+			"parentfield" : "custom_meeting"
+		})
+			meet_table.insert()
+			link_doc = frappe.get_doc("Project",doc.project)
+			link_doc.custom_meeting.append(meet_table)
+			link_doc.save()
+		frappe.db.commit()
+	
+	if doc.party_type == "Customer":
+		meet_table = frappe.get_doc({
+			"doctype":"Meeting Table",
+			"parenttype" : "Customer",
+			"parent" : doc.party,
+			"party_type" : doc.party_type,
+			"party" : doc.party,
+			"meeting" : doc.name,
+			"parentfield" : "custom_meeting"
+		})
+		meet_table.insert()
+		link_doc = frappe.get_doc("Customer",doc.party)
+		link_doc.custom_meeting.append(meet_table)
+		link_doc.save()
+		
+		if doc.project:
+			meet_table = frappe.get_doc({
+				"doctype":"Meeting Table",
+				"parenttype" : "Project",
+				"parent" : doc.project,
+				"party_type" : doc.party_type,
+				"party" : doc.party,
+				"meeting" : doc.name,
+				"parentfield" : "custom_meeting"
+			})
+			meet_table.insert()
+
+			link_doc = frappe.get_doc("Project",doc.project)
+			link_doc.custom_meeting.append(meet_table)
+			link_doc.save()
+		frappe.db.commit()
+		
+	
+	   
+	
+		
+	if doc.party_type == "Supplier":
+		meet_table = frappe.get_doc({
+			"doctype":"Meeting Table",
+			"parenttype" : "Lead",
+			"parent" : doc.party,
+			"party_type" : doc.party_type,
+			"party" : doc.party,
+			"meeting" : doc.name
+		})
+		meet_table.insert()
+		link_doc = frappe.get_doc("Supplier",doc.party)
+		link_doc.custom_meeting.append(meet_table)
+		link_doc.save()
+		if doc.project:
+			meet_table = frappe.get_doc({
+				"doctype":"Meeting Table",
+				"parenttype" : "Project",
+				"parent" : doc.project,
+				"party_type" : doc.party_type,
+				"party" : doc.party,
+				"meeting" : doc.name,
+				"parentfield" : "custom_meeting"
+			})
+			meet_table.insert()
+			link_doc = frappe.get_doc("Project",doc.project)
+			link_doc.custom_meeting.append(meet_table)
+			link_doc.save()
+		frappe.db.commit()
+	   
+	
+	
+	
