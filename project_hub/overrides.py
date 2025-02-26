@@ -213,6 +213,8 @@ def send_email_by_9am():
 
 def update_meetings(doc,event):
 	
+	if doc.contact_person:
+		frappe.db.set_value("Contact",doc.contact_person,"custom_last_contacted",doc.modified)
 	if doc.party_type == "Lead":
 		meet_table = frappe.get_doc({
 			"doctype":"Meeting Table",
@@ -274,11 +276,7 @@ def update_meetings(doc,event):
 			link_doc.custom_meeting.append(meet_table)
 			link_doc.save()
 		frappe.db.commit()
-		
-	
-	   
-	
-		
+			
 	if doc.party_type == "Supplier":
 		meet_table = frappe.get_doc({
 			"doctype":"Meeting Table",
