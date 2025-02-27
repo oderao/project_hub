@@ -213,99 +213,55 @@ def send_email_by_9am():
 
 def update_meetings(doc,event):
 	
-	if doc.contact_person:
-		frappe.db.set_value("Contact",doc.contact_person,"custom_last_contacted",doc.modified)
-	if doc.party_type == "Lead":
+	
+	if doc.appointment_with == "Lead":
 		meet_table = frappe.get_doc({
-			"doctype":"Meeting Table",
+			"doctype":"Appointment Table",
 			"parenttype" : "Lead",
 			"parent" : doc.party,
-			"party_type" : doc.party_type,
+			"party_type" : doc.appointment_with,
 			"party" : doc.party,
-			"meeting" : doc.name,
+			"appointment" : doc.name,
 			"parentfield" : "custom_meeting"
 		})
-		meet_table.insert()
-		link_doc = frappe.get_doc("Lead",doc.party)
-		link_doc.custom_meeting.append(meet_table)
-		link_doc.save()
-		if doc.project:
-			meet_table = frappe.get_doc({
-			"doctype":"Meeting Table",
-			"parenttype" : "Project",
-			"parent" : doc.project,
-			"party_type" : doc.party_type,
-			"party" : doc.party,
-			"meeting" : doc.name,
-			"parentfield" : "custom_meeting"
-		})
+		if not frappe.db.exists("Appointment Table",{"party":doc.party,"appointment":doc.name,"parent":doc.party}):
 			meet_table.insert()
-			link_doc = frappe.get_doc("Project",doc.project)
+			link_doc = frappe.get_doc("Lead",doc.party)
 			link_doc.custom_meeting.append(meet_table)
 			link_doc.save()
-		frappe.db.commit()
+		# if doc.project:
+		# 	meet_table = frappe.get_doc({
+		# 	"doctype":"Meeting Table",
+		# 	"parenttype" : "Project",
+		# 	"parent" : doc.project,
+		# 	"party_type" : doc.party_type,
+		# 	"party" : doc.party,
+		# 	"meeting" : doc.name,
+		# 	"parentfield" : "custom_meeting"
+		# })
+		# 	meet_table.insert()
+		# 	link_doc = frappe.get_doc("Project",doc.project)
+		# 	link_doc.custom_meeting.append(meet_table)
+		# 	link_doc.save()
+		# frappe.db.commit()
 	
-	if doc.party_type == "Customer":
+	if doc.appointment_with == "Customer":
 		meet_table = frappe.get_doc({
-			"doctype":"Meeting Table",
+			"doctype":"Appointment Table",
 			"parenttype" : "Customer",
 			"parent" : doc.party,
-			"party_type" : doc.party_type,
+			"party_type" : doc.appointment_with,
 			"party" : doc.party,
-			"meeting" : doc.name,
+			"appointment" : doc.name,
 			"parentfield" : "custom_meeting"
 		})
-		meet_table.insert()
-		link_doc = frappe.get_doc("Customer",doc.party)
-		link_doc.custom_meeting.append(meet_table)
-		link_doc.save()
-		
-		if doc.project:
-			meet_table = frappe.get_doc({
-				"doctype":"Meeting Table",
-				"parenttype" : "Project",
-				"parent" : doc.project,
-				"party_type" : doc.party_type,
-				"party" : doc.party,
-				"meeting" : doc.name,
-				"parentfield" : "custom_meeting"
-			})
-			meet_table.insert()
+		if not frappe.db.exists("Appointment Table",{"party":doc.party,"appointment":doc.name,"parent":doc.party}):
 
-			link_doc = frappe.get_doc("Project",doc.project)
-			link_doc.custom_meeting.append(meet_table)
-			link_doc.save()
-		frappe.db.commit()
-			
-	if doc.party_type == "Supplier":
-		meet_table = frappe.get_doc({
-			"doctype":"Meeting Table",
-			"parenttype" : "Lead",
-			"parent" : doc.party,
-			"party_type" : doc.party_type,
-			"party" : doc.party,
-			"meeting" : doc.name
-		})
-		meet_table.insert()
-		link_doc = frappe.get_doc("Supplier",doc.party)
-		link_doc.custom_meeting.append(meet_table)
-		link_doc.save()
-		if doc.project:
-			meet_table = frappe.get_doc({
-				"doctype":"Meeting Table",
-				"parenttype" : "Project",
-				"parent" : doc.project,
-				"party_type" : doc.party_type,
-				"party" : doc.party,
-				"meeting" : doc.name,
-				"parentfield" : "custom_meeting"
-			})
 			meet_table.insert()
-			link_doc = frappe.get_doc("Project",doc.project)
+			link_doc = frappe.get_doc("Customer",doc.party)
 			link_doc.custom_meeting.append(meet_table)
 			link_doc.save()
-		frappe.db.commit()
-	   
-	
+			
+
 	
 	

@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class MeetingTable(Document):
+class AppointmentTable(Document):
 	pass
